@@ -1,44 +1,12 @@
-# This file contains a lot of comments which are also presented in README.md. I figured I'd
-# take the risk of over-communicating by stating the same info in two places.
+# See https://github.com/progtron/CourseProject/blob/master/README.md for a detailed description
+# of how this script works.
 
-# Let's begin with a look at the project:
-# You should create one R script called run_analysis.R that does the following. 
-# 1. Merges the training and the test sets to create one data set.
-# 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
-# 3. Uses descriptive activity names to name the activities in the data set
-# 4. Appropriately labels the data set with descriptive variable names. 
-# 5. From the data set in step 4, creates a second, independent tidy data set with the average
-#    of each variable for each activity and each subject.
-
-# Unzip the data. There are a bunch of info files at the top level and two dirs: test, train.
-# OK. Presumably these contain the sets to be merged.
-
-# There are 30 subjects: 21 in the training set and 9 in the test set. The data set contains
-# observations across 561 variables (features.txt) for 6 activities (activity_labels.txt).
-# The goal of the published project was to train an SVM with the training set and make
-# predictions for the test set. That's not relevant to our exercise but provides context.
-
-# The discussion forum contains a note from Course TA David Hood to ignore Inertial Signals.
-# (https://class.coursera.org/getdata-031/forum/thread?thread_id=28)
-# /test:
-# 2947 observations of 561 variables (X_test.txt)
-# 9 subjects (subject_test.txt)
-# 6 labels (y_test.txt)
-
-# /train
-# 7352 observations of 561 variables (X_train.txt)
-# 21 subjects
-# 6 labels
-
-# The 561 variables are described in features.txt
-
-# I will complete all steps but not necessarily in the order specified.
-
-# Begin by installing needed packages, in case they are not present
+# Install needed packages, in case they are not present
 packages_used <- c("dplyr", "tidyr")
 packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]
 if(length(packages_to_install)) install.packages(packages_to_install)
 
+# To observe progress, updates & info are printed to the console
 print("===")
 print("Assumptions:")
 print("1.. Data fetched & unzipped");
@@ -48,7 +16,6 @@ flush.console()
 
 # Read the data sets. The files have no header and use whitespace separators (1 or 2,
 # depending on whether the next reading is negative or not).
-
 test <- read.csv("./UCI HAR Dataset/test/X_test.txt", header = FALSE, sep = "")
 
 print("===")
@@ -176,9 +143,7 @@ flush.console()
 # I will use a suffix approach for the measure (mean, sd) and axis (X, Y, Z).
 # E.g. std()-Y -> sd.Y; mean()-Z -> mean.Z
 
-# The only package I could find which could accept find & replace vectors was
-# rather obscure and had a bunch of dependencies (qdap). So we'll simply
-# implement clean-up with a series of substitutions.
+# Implement clean-up with a series of substitutions.
 # I'm choosing substitute strings which are easy to split on (for subsequent tidying)
 names(means_sds) <- sub("^t", "time_", names(means_sds))
 names(means_sds) <- sub("^f", "freq_", names(means_sds))
@@ -204,11 +169,8 @@ flush.console()
 
 # We need the mean values for all 66 variables, for every combination of activity & subject.
 
-# So the end result will contain 6*30 => 180 rows. Each row will contain the specific
+# So the result will contain 6*30 => 180 rows. Each row will contain the specific
 # activity, subject, and 66 mean values for each of the variables => 68 columns.
-
-# The current structure is tidy! So we will keep the structure and only reshape
-# the data set to display mean values.
 
 # dplyr is my friend
 library(dplyr)
@@ -222,9 +184,9 @@ means_sds_tbl <- tbl_df(means_sds)
 # -- summarize by each activity-subject pair (group) across all variables 
 activity_subject_means <-
   means_sds_tbl %>%
-  mutate(subject = sprintf("Subject-%02d", subject)) %>%
-  group_by(activity, subject) %>%
-  summarise_each(funs(mean))
+    mutate(subject = sprintf("Subject-%02d", subject)) %>%
+      group_by(activity, subject) %>%
+        summarise_each(funs(mean))
 
 print("===")
 print("Computed grouped (activity-subject) means for all columns")
@@ -240,8 +202,8 @@ library(tidyr)
 # separate columns
 tidy_result <-
   activity_subject_means %>%
-  gather(key, value, -activity, -subject) %>%
-  extract(key, c("measure", "metric", "func", "axis"), "^(.*)_(.*)_(.*)_(.*)$")
+    gather(key, value, -activity, -subject) %>%
+      extract(key, c("measure", "metric", "func", "axis"), "^(.*)_(.*)_(.*)_(.*)$")
 
 # Except for the mean values, change column types to factor
 tidy_result$subject = as.factor(tidy_result$subject)
