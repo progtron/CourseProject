@@ -3,7 +3,7 @@ Course Project for Coursera: Getting and Cleaning Data (August 2015)
 
 Let's begin with a look at the project:
 
-You should create one R script called run_analysis.R that does the following. 
+You should create one R script called run_analysis.R that does the following.
 
 1. Merges the training and the test sets to create one data set.
 2. Extracts only the measurements on the mean and standard deviation for each measurement. 
@@ -31,88 +31,63 @@ The 561 variables are described in `features.txt`.
 
 My approach is described below. I will complete all steps but not necessarily in the order specified. In `run_analysis.R` I have included `print` statements to inform about progress while it runs.
 
-Begin by installing needed packages, in case they are not present:
-
-`packages_used <- c("dplyr", "tidyr")`
-
-`packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]`
-
+Begin by installing needed packages, in case they are not present.  
+`packages_used <- c("dplyr", "tidyr")`  
+`packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]`  
 `if(length(packages_to_install)) install.packages(packages_to_install)`
 
-Read the data sets. The files have no header and use whitespace separators (1 or 2, depending on whether the next reading is negative or not).
+Read the data sets. The files have no header and use whitespace separators (1 or 2, depending on whether the next reading is negative or not).  
+`test <- read.csv("./UCI HAR Dataset/test/X_test.txt", header = FALSE, sep = "")`  
+`train <- read.csv("./UCI HAR Dataset/train/X_train.txt", header = FALSE, sep = "")`
 
-test <- read.csv("./UCI HAR Dataset/test/X_test.txt", header = FALSE, sep = "")
+No column headers yet. We can add them from features.txt. First, store the list of features into a character vector.  
+`features <- read.delim("./UCI HAR Dataset/features.txt", sep = " ", header = FALSE)`
 
-print("===")
-print("Initial load:")
-print(sprintf("Test data has %s observations of %s variables", dim(test)[1], dim(test)[2]))
-print("---")
-flush.console()
+Name the columns (not strictly necessary, but seems like a good practice).  
+`names(features) <- c("seq", "name")`
 
-train <- read.csv("./UCI HAR Dataset/train/X_train.txt", header = FALSE, sep = "")
+Assign names to the columns of the merged data set.  
+`names(test) <- features$name`  
+`names(train) <- features$name`
 
-print(sprintf("Train data has %s observations of %s variables", dim(train)[1], dim(train)[2]))
-print("---")
-flush.console()
+For each data set add columns for activity & subject. Further we also need to replace activity codes with descriptive names. We might as well do that up front before adding the column.
 
-# No column headers yet. We can add them from features.txt.
-# First, store the list of features into a character vector:
-features <- read.delim("./UCI HAR Dataset/features.txt", sep = " ", header = FALSE)
+Use `activity_labels.txt` to rename activity codes with user-friendly names.
 
-# Name the columns (not strictly necessary, but seems like a good practice)
-names(features) <- c("seq", "name")
+Read the labels.  
+`activity_labels <-  
+  read.delim("./UCI HAR Dataset/activity_labels.txt", sep = " ", header = FALSE,  
+             stringsAsFactors = FALSE)`
 
-# Assign names to the columns of the merged data set:
-names(test) <- features$name
-names(train) <- features$name
+Name the columns.  
+`names(activity_labels) <- c("code", "name")`
 
-# For each data set add columns for activity & subject. Further we also need to replace
-# activity codes with descriptive names. We might as well do that up front before adding
-# the column.
+Set up a function which returns the name, given a code.  
+`use_activity_label <- function(x) {activity_labels[x,]$name}`
 
-# Use activity_labels.txt to rename activity codes with user-friendly names.
+Note that this approach is general enough to handle changes to the activity labels i.e. it does not rely on the fact that the current set has 6 labels.
 
-# Read the labels
-activity_labels <-
-  read.delim("./UCI HAR Dataset/activity_labels.txt", sep = " ", header = FALSE,
-             stringsAsFactors = FALSE)
+Start by doing this for the `test` data set.  
+`test_activity_codes <- as.data.frame(readLines("./UCI HAR Dataset/test/y_test.txt"))`
 
-# Name the columns
-names(activity_labels) <- c("code", "name")
+Apply this function & name the new column sensibly.  
+`test_activity_names <- as.data.frame(sapply(test_activity_codes, use_activity_label))`  
+`names(test_activity_names) <- c("activity")`
 
-# Set up a function which returns the name, given a code
-use_activity_label <- function(x) {activity_labels[x,]$name}
+Read the subject data.  
+`test_subjects <- as.data.frame(readLines("./UCI HAR Dataset/test/subject_test.txt"))`  
+`names(test_subjects) <- c("subject")`
 
-# Note that this approach is general enough to handle changes to the activity labels
-# i.e. it does not rely on the fact that the current set has 6 labels.
+Add the column.  
+`test <- cbind(test_activity_names, test_subjects, test)`
 
-# Start by doing this for the 'test' data set
-test_activity_codes <- as.data.frame(readLines("./UCI HAR Dataset/test/y_test.txt"))
-
-# Apply this function & name the new column sensibly
-test_activity_names <- as.data.frame(sapply(test_activity_codes, use_activity_label))
-names(test_activity_names) <- c("activity")
-
-print("===")
-print("Descriptive activity names in data frame: test_activity_names")
-print("ASSIGNMENT STEP 3 Completed")
-print("---")
-flush.console()
-
-# Read the subject data
-test_subjects <- as.data.frame(readLines("./UCI HAR Dataset/test/subject_test.txt"))
-names(test_subjects) <- c("subject")
-
-# Add the column
-test <- cbind(test_activity_names, test_subjects, test)
-
-# Do the same for 'train'
-train_activity_codes <- as.data.frame(readLines("./UCI HAR Dataset/train/y_train.txt"))
-train_activity_names <- as.data.frame(sapply(train_activity_codes, use_activity_label))
-names(train_activity_names) <- c("activity")
-train_subjects <- as.data.frame(readLines("./UCI HAR Dataset/train/subject_train.txt"))
-names(train_subjects) <- c("subject")
-train <- cbind(train_activity_names, train_subjects, train)
+Do the same for `train`.  
+`train_activity_codes <- as.data.frame(readLines("./UCI HAR Dataset/train/y_train.txt"))`  
+`train_activity_names <- as.data.frame(sapply(train_activity_codes, use_activity_label))`  
+`names(train_activity_names) <- c("activity")`  
+`train_subjects <- as.data.frame(readLines("./UCI HAR Dataset/train/subject_train.txt"))`  
+`names(train_subjects) <- c("subject")`  
+`train <- cbind(train_activity_names, train_subjects, train)`
 
 # Both data frames now have 563 identically labeled columns
 print("===")
