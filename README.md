@@ -44,7 +44,7 @@ Read the data sets. The files have no header and use whitespace separators (1 or
 `test <- read.csv("./UCI HAR Dataset/test/X_test.txt", header = FALSE, sep = "")`  
 `train <- read.csv("./UCI HAR Dataset/train/X_train.txt", header = FALSE, sep = "")`
 
-No column headers yet. We can add them from features.txt. First, store the list of features into a character vector.  
+No column headers yet. We can add them from `features.txt`. First, store the list of features into a character vector.  
 `features <- read.delim("./UCI HAR Dataset/features.txt", sep = " ", header = FALSE)`
 
 Name the columns (not strictly necessary, but seems like a good practice).  
@@ -54,7 +54,7 @@ Assign names to the columns of the merged data set.
 `names(test) <- features$name`  
 `names(train) <- features$name`
 
-For each data set add columns for activity & subject. Further we also need to replace activity codes with descriptive names. We might as well do that up front before adding the column.
+For each data set add columns for `activity` & `subject`. Further we also need to replace activity codes with descriptive names. We might as well do that up front before adding the column.
 
 Use `activity_labels.txt` to rename activity codes with user-friendly names.
 
@@ -76,14 +76,14 @@ Note that this approach is general enough to handle changes to the activity labe
 Start by doing this for the `test` data set.  
 `test_activity_codes <- as.data.frame(readLines("./UCI HAR Dataset/test/y_test.txt"))`
 
-Apply this function & name the new column sensibly.  
+Apply this function & name the new column sensibly (`activity`).  
 `test_activity_names <- as.data.frame(sapply(test_activity_codes, use_activity_label))`  
 `names(test_activity_names) <- c("activity")`
 
 #### Descriptive activity names in data frame: `test_activity_names`
 ### This completes STEP 3 of the assignment.
 
-Read the subject data.  
+Read the subject data & name the column `subject`.  
 `test_subjects <- as.data.frame(readLines("./UCI HAR Dataset/test/subject_test.txt"))`  
 `names(test_subjects) <- c("subject")`
 
