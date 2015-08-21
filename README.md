@@ -36,6 +36,10 @@ Begin by installing needed packages, in case they are not present.
 `packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]`  
 `if(length(packages_to_install)) install.packages(packages_to_install)`
 
+### Assumptions about data location:
+1. Data fetched & unzipped
+2. UCI HAR Dataset folder in working directory of this script
+
 Read the data sets. The files have no header and use whitespace separators (1 or 2, depending on whether the next reading is negative or not).  
 `test <- read.csv("./UCI HAR Dataset/test/X_test.txt", header = FALSE, sep = "")`  
 `train <- read.csv("./UCI HAR Dataset/train/X_train.txt", header = FALSE, sep = "")`
@@ -55,9 +59,11 @@ For each data set add columns for activity & subject. Further we also need to re
 Use `activity_labels.txt` to rename activity codes with user-friendly names.
 
 Read the labels.  
-`activity_labels <-  
+```
+activity_labels <-  
   read.delim("./UCI HAR Dataset/activity_labels.txt", sep = " ", header = FALSE,  
              stringsAsFactors = FALSE)`
+```
 
 Name the columns.  
 `names(activity_labels) <- c("code", "name")`
@@ -74,6 +80,9 @@ Apply this function & name the new column sensibly.
 `test_activity_names <- as.data.frame(sapply(test_activity_codes, use_activity_label))`  
 `names(test_activity_names) <- c("activity")`
 
+#### Descriptive activity names in data frame: `test_activity_names`
+### This completes STEP 3 of the assignment.
+
 Read the subject data.  
 `test_subjects <- as.data.frame(readLines("./UCI HAR Dataset/test/subject_test.txt"))`  
 `names(test_subjects) <- c("subject")`
@@ -89,79 +98,49 @@ Do the same for `train`.
 `names(train_subjects) <- c("subject")`  
 `train <- cbind(train_activity_names, train_subjects, train)`
 
-# Both data frames now have 563 identically labeled columns
-print("===")
-print("Merged with activity & subject data:")
-print(sprintf("Test data now has %s observations of %s variables", dim(test)[1], dim(test)[2]))
-flush.console()
-print(sprintf("Train data now has %s observations of %s variables", dim(train)[1], dim(train)[2]))
-flush.console()
+`test` and `train` data frames are now combined with their respective activity & subject info and now have 563 identically labeled columns.
 
-# Let's merge (concatenate) them.
-full <- rbind(test, train)
+Let's merge (concatenate) them.  
+`full <- rbind(test, train)`
 
-print("===")
-print("Test & train data sets merged into data frame: full")
-print("ASSIGNMENT STEP 1 Completed")
-print("---")
-flush.console()
+#### Test & train data sets merged into data frame: `full`
+### This completes STEP 1 of the assignment.
 
-# We need to extract measurements only for mean and standard deviation. From inspection
-# of features_info.txt and features.txt, I will only look for variables which contain
-# -mean() and -std(). I'm avoiding meanFreq and some angle measurements which happen
-# to have the 'mean' pattern in their names.
+We need to extract measurements only for mean and standard deviation. From inspection of `features_info.txt` and `features.txt`, I will only look for variables which contain '-mean()' and '-std()'. I'm avoiding 'meanFreq' and some angle measurements which happen to have the 'mean' pattern in their names.
 
-# Keep only columns which match the above patterns, plus 'activity' & 'subject' columns.
-# This is the requested data frame for all mean's and std's.
-means_sds <- full[, grepl("subject|activity|-std\\(\\)|-mean\\(\\)", names(full))]
+Keep only columns which match the above patterns, plus 'activity' & 'subject' columns. This is the requested data frame for all mean's and std's.  
+`means_sds <- full[, grepl("subject|activity|-std\\(\\)|-mean\\(\\)", names(full))]`
 
-# We've combined rows from both data sets and cut down to 68 columns.
-print("===")
-print("Extracted mean- and sd- columns")
-print(sprintf("Means & SD data has %s observations of %s variables",
-              dim(means_sds)[1], dim(means_sds)[2]))
-flush.console()
+We've combined rows from both data sets and cut down to 68 columns by extracting only the mean- and sd- columns. These are visible in the data frame `means_sds`.
 
-print("===")
-print("Mean & SD values extracted into data frame: means_sds")
-print("ASSIGNMENT STEP 2 Completed")
-print("---")
-flush.console()
+#### Mean & SD values extracted into data frame: `means_sds`
+## #This completes STEP 2 of the assignment.
 
-# We need to clean up variable names in the data set with mean's & sd's.
+We need to clean up variable names in the data set with mean's & sd's.
 
-# From the features doc and preview of 'means_sds', we should apply the following
-# clean-up. I'm trying to make a balance between making a term recognizable and
-# expanding it out completely -> unwieldy.
-# -- expand prefix t -> time
-# -- expand prefix f -> frequency -> freq
-# -- expand Acc -> Acceleration -> Accel
-# -- expand Mag -> Magnitude
-# -- de-duplicate BodyBody -> Body
-# Finally, for variables which do not specify an axis, use NA
+From the features docs and preview of `means_sds`, we should apply the following clean-up. I'm trying to make a balance between making a term recognizable and expanding it out completely which can make the names unwieldy.
+* Expand prefix `t` -> `time`
+* Expand prefix `f` -> frequency -> `freq`
+* Expand `Acc` -> Acceleration -> `Accel`
+* Expand `Mag` -> `Magnitude`
+* De-duplicate `BodyBody` -> `Body`
+* Finally, for variables which do not specify an axis, use `NA`
 
-# I will use a suffix approach for the measure (mean, sd) and axis (X, Y, Z).
-# E.g. std()-Y -> sd.Y; mean()-Z -> mean.Z
+I will use a suffix approach for the measure (mean, sd) and axis (X, Y, Z). e.g. `std()-Y` -> `sd_Y`; `mean()-Z` -> `mean_Z`
 
-# The only package I could find which could accept find & replace vectors was
-# rather obscure and had a bunch of dependencies (qdap). So we'll simply
-# implement clean-up with a series of substitutions.
-# I'm choosing substitute strings which are easy to split on (for subsequent tidying)
-names(means_sds) <- sub("^t", "time_", names(means_sds))
-names(means_sds) <- sub("^f", "freq_", names(means_sds))
-names(means_sds) <- sub("Acc", "Accel", names(means_sds))
-names(means_sds) <- sub("Mag", "Magnitude", names(means_sds))
-names(means_sds) <- sub("BodyBody", "Body", names(means_sds))
-names(means_sds) <- sub("-mean\\(\\)-", "\\_mean_", names(means_sds))
-names(means_sds) <- sub("-mean\\(\\)$", "\\_mean_NA", names(means_sds))
-names(means_sds) <- sub("-std\\(\\)-", "\\_sd_", names(means_sds))
-names(means_sds) <- sub("-std\\(\\)$", "\\_sd_NA", names(means_sds))
+The only package I could find which could accept find & replace vectors was rather obscure and had a bunch of dependencies (`qdap`). So we'll simply implement clean-up with a series of substitutions. I'm choosing substitute strings which are easy to split on (for subsequent tidying).  
+`names(means_sds) <- sub("^t", "time_", names(means_sds))`  
+`names(means_sds) <- sub("^f", "freq_", names(means_sds))`  
+`names(means_sds) <- sub("Acc", "Accel", names(means_sds))`  
+`names(means_sds) <- sub("Mag", "Magnitude", names(means_sds))`  
+`names(means_sds) <- sub("BodyBody", "Body", names(means_sds))`  
+`names(means_sds) <- sub("-mean\\(\\)-", "\\_mean_", names(means_sds))`  
+`names(means_sds) <- sub("-mean\\(\\)$", "\\_mean_NA", names(means_sds))`  
+`names(means_sds) <- sub("-std\\(\\)-", "\\_sd_", names(means_sds))`  
+`names(means_sds) <- sub("-std\\(\\)$", "\\_sd_NA", names(means_sds))`
 
-print("===")
-print("Assigned descriptive variable names in data frame: means_sds")
-print("ASSIGNMENT STEP 4 Completed")
-print("---")
-flush.console()
+#### Assigned descriptive variable names in data frame: `means_sds`
+### This completes STEP 4 of the assignment.
 
 # For the final step we need to generate the mean value of each variable per activity,
 # per subject. This data has 3 dimensions:
