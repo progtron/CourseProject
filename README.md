@@ -114,7 +114,7 @@ Keep only columns which match the above patterns, plus 'activity' & 'subject' co
 We've combined rows from both data sets and cut down to 68 columns by extracting only the mean- and sd- columns. These are visible in the data frame `means_sds`.
 
 #### Mean & SD values extracted into data frame: `means_sds`
-## #This completes STEP 2 of the assignment.
+### This completes STEP 2 of the assignment.
 
 We need to clean up variable names in the data set with mean's & sd's.
 
@@ -142,73 +142,58 @@ The only package I could find which could accept find & replace vectors was rath
 #### Assigned descriptive variable names in data frame: `means_sds`
 ### This completes STEP 4 of the assignment.
 
-# For the final step we need to generate the mean value of each variable per activity,
-# per subject. This data has 3 dimensions:
-# 6 activities
-# 30 subjects
-# 66 variables (68 columns minus activity minus subject)
+For the final step we need to generate the mean value of each variable per activity, per subject. This data has 3 dimensions:
 
-# We need the mean values for all 66 variables, for every combination of activity & subject.
+1. 6 activities
+2. 30 subjects
+3. 66 variables (68 columns minus `activity` minus `subject`)
 
-# So the end result will contain 6*30 => 180 rows. Each row will contain the specific
-# activity, subject, and 66 mean values for each of the variables => 68 columns.
+We need the mean values for all 66 variables, for every combination of activity & subject.
 
-# The current structure is tidy! So we will keep the structure and only reshape
-# the data set to display mean values.
+So the end result will contain 6*30 => 180 rows. Each row will contain the specific activity, subject, and 66 mean values for each of the variables => 68 columns.
 
-# dplyr is my friend
-library(dplyr)
+`dplyr` is my friend.  
+`library(dplyr)`
 
-# convert to dplyr-compatible class
-means_sds_tbl <- tbl_df(means_sds)
+Convert to dplyr-compatible class.  
+`means_sds_tbl <- tbl_df(means_sds)`
 
-# Generate the requisite data set:
-# -- change subject values from numeric to the form Subject-##
-# -- group by activity & subject
-# -- summarize by each activity-subject pair (group) across all variables 
+Generate the requisite data set:
+* Change subject values from numeric to the form Subject-##
+* Group by activity & subject
+* Summarize by each activity-subject pair (group) across all variables:
+```
 activity_subject_means <-
   means_sds_tbl %>%
-  mutate(subject = sprintf("Subject-%02d", subject)) %>%
-  group_by(activity, subject) %>%
-  summarise_each(funs(mean))
+    mutate(subject = sprintf("Subject-%02d", subject)) %>%
+      group_by(activity, subject) %>%
+        summarise_each(funs(mean))
+```
 
-print("===")
-print("Computed grouped (activity-subject) means for all columns")
-print(sprintf("Activity-Subject means have %s observations of %s variables",
-              dim(activity_subject_means)[1], dim(activity_subject_means)[2]))
-flush.console()
+At this point we've computed the grouped (activity-subject) means for all columns in table `activity_subject_means`
 
-# Time to bring out tidyr
-library(tidyr)
+Time to bring out tidyr!  
+`library(tidyr)`
 
-# Based on prior inspection of the data, we had introduced "_" separators
-# for the various facets of each variable. We will use these now to create
-# separate columns
+Based on prior inspection of the data, we had introduced '_' separators for the various facets of each variable. We will use these now to create separate columns.
+```
 tidy_result <-
   activity_subject_means %>%
-  gather(key, value, -activity, -subject) %>%
-  extract(key, c("measure", "metric", "func", "axis"), "^(.*)_(.*)_(.*)_(.*)$")
+    gather(key, value, -activity, -subject) %>%
+      extract(key, c("measure", "metric", "func", "axis"), "^(.*)_(.*)_(.*)_(.*)$")
+```
 
-# Except for the mean values, change column types to factor
-tidy_result$subject = as.factor(tidy_result$subject)
-tidy_result$measure = as.factor(tidy_result$measure)
-tidy_result$metric = as.factor(tidy_result$metric)
-tidy_result$func = as.factor(tidy_result$func)
-tidy_result$axis = as.factor(tidy_result$axis)
+Final clean-up. Except for the mean values, change column types to factor.  
+`tidy_result$subject = as.factor(tidy_result$subject)`
+`tidy_result$measure = as.factor(tidy_result$measure)`
+`tidy_result$metric = as.factor(tidy_result$metric)`
+`tidy_result$func = as.factor(tidy_result$func)`
+`tidy_result$axis = as.factor(tidy_result$axis)`
 
-print("===")
-print("Tidied the result by decomposing variable names into multiple columns")
-print(sprintf("The result has %s observations of %s variables",
-              dim(tidy_result)[1], dim(tidy_result)[2]))
-print("---")
-print(tidy_result)
-print("---")
-flush.console()
+We've tidied the result by decomposing variable names into multiple columns in the table `tidy_result`.
 
-str(tidy_result)
+Print the summary of this table.  
+`str(tidy_result)`
 
-print("===")
-print("Final tidy table: tidy_result")
-print("ASSIGNMENT STEP 5 Completed")
-print("---")
-flush.console()
+#### Final tidy table: `tidy_result`
+### This completes STEP 5 of the assignment, the final step.
