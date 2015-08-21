@@ -27,24 +27,19 @@ The discussion forum contains a [note](https://class.coursera.org/getdata-031/fo
 * 21 subjects (`subject_train.txt`)
 * 6 labels (`y_train.txt`)
 
-# The 561 variables are described in features.txt
+The 561 variables are described in `features.txt`.
 
-# I will complete all steps but not necessarily in the order specified.
+My approach is described below. I will complete all steps but not necessarily in the order specified. In `run_analysis.R` I have included `print` statements to inform about progress while it runs.
 
-# Begin by installing needed packages, in case they are not present
-packages_used <- c("dplyr", "tidyr")
-packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]
-if(length(packages_to_install)) install.packages(packages_to_install)
+Begin by installing needed packages, in case they are not present:
 
-print("===")
-print("Assumptions:")
-print("1.. Data fetched & unzipped");
-print("2.. UCI HAR Dataset folder in working directory of this script")
-print("---")
-flush.console()
+`packages_used <- c("dplyr", "tidyr")`
 
-# Read the data sets. The files have no header and use whitespace separators (1 or 2,
-# depending on whether the next reading is negative or not).
+`packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]`
+
+`if(length(packages_to_install)) install.packages(packages_to_install)`
+
+Read the data sets. The files have no header and use whitespace separators (1 or 2, depending on whether the next reading is negative or not).
 
 test <- read.csv("./UCI HAR Dataset/test/X_test.txt", header = FALSE, sep = "")
 
