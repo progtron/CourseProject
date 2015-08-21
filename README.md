@@ -197,3 +197,32 @@ Print the summary of this table.
 
 #### Final tidy table: `tidy_result`
 ### This completes STEP 5 of the assignment, the final step.
+
+Here's what `tidy_result` looks like:
+```
+Source: local data frame [11,880 x 7]
+
+   activity    subject measure    metric func axis     value
+1    LAYING Subject-01    time BodyAccel mean    X 0.2802306
+2    LAYING Subject-02    time BodyAccel mean    X 0.2601134
+3    LAYING Subject-03    time BodyAccel mean    X 0.2767164
+4    LAYING Subject-04    time BodyAccel mean    X 0.2746916
+5    LAYING Subject-05    time BodyAccel mean    X 0.2813734
+6    LAYING Subject-06    time BodyAccel mean    X 0.2395079
+7    LAYING Subject-07    time BodyAccel mean    X 0.2728505
+8    LAYING Subject-08    time BodyAccel mean    X 0.2635592
+9    LAYING Subject-09    time BodyAccel mean    X 0.2591955
+10   LAYING Subject-10    time BodyAccel mean    X 0.2215982
+..      ...        ...     ...       ...  ...  ...       ...
+```
+`str(tidy_result)`
+```
+Classes ‘tbl_df’, ‘tbl’ and 'data.frame':	11880 obs. of  7 variables:
+ $ activity: Factor w/ 6 levels "LAYING","SITTING",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ subject : Factor w/ 30 levels "Subject-01","Subject-02",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ measure : Factor w/ 2 levels "freq","time": 2 2 2 2 2 2 2 2 2 2 ...
+ $ metric  : Factor w/ 10 levels "BodyAccel","BodyAccelJerk",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ func    : Factor w/ 2 levels "mean","sd": 1 1 1 1 1 1 1 1 1 1 ...
+ $ axis    : Factor w/ 4 levels "NA","X","Y","Z": 2 2 2 2 2 2 2 2 2 2 ...
+ $ value   : num  0.28 0.26 0.277 0.275 0.281 ...
+ ```
