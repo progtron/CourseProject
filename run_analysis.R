@@ -190,14 +190,12 @@ library(dplyr)
 means_sds_tbl <- tbl_df(means_sds)
 
 # Generate the requisite data set:
-# -- change subject values from numeric to the form Subject-##
 # -- group by activity & subject
 # -- summarize by each activity-subject pair (group) across all variables 
 activity_subject_means <-
   means_sds_tbl %>%
-    mutate(subject = sprintf("Subject-%02d", subject)) %>%
-      group_by(activity, subject) %>%
-        summarise_each(funs(mean))
+    group_by(activity, subject) %>%
+      summarise_each(funs(mean))
 
 print("===")
 print("Computed grouped (activity-subject) means for all columns")
