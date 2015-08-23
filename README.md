@@ -171,15 +171,13 @@ Convert to dplyr-compatible class.
 `means_sds_tbl <- tbl_df(means_sds)`
 
 Generate the requisite data set:
-* Change subject values from numeric to the form Subject-##
 * Group by activity & subject
 * Summarize by each activity-subject pair (group) across all variables:
 ```
 activity_subject_means <-
   means_sds_tbl %>%
-    mutate(subject = sprintf("Subject-%02d", subject)) %>%
-      group_by(activity, subject) %>%
-        summarise_each(funs(mean))
+    group_by(activity, subject) %>%
+      summarise_each(funs(mean))
 ```
 
 At this point we've computed the grouped (activity-subject) means for all columns in table `activity_subject_means`
@@ -214,24 +212,24 @@ Here's what `tidy_result` looks like. If you're using **RStudio** use `View(tidy
 ```
 Source: local data frame [11,880 x 7]
 
-   activity    subject measure    metric func axis     value
-1    LAYING Subject-01    time BodyAccel mean    X 0.2802306
-2    LAYING Subject-02    time BodyAccel mean    X 0.2601134
-3    LAYING Subject-03    time BodyAccel mean    X 0.2767164
-4    LAYING Subject-04    time BodyAccel mean    X 0.2746916
-5    LAYING Subject-05    time BodyAccel mean    X 0.2813734
-6    LAYING Subject-06    time BodyAccel mean    X 0.2395079
-7    LAYING Subject-07    time BodyAccel mean    X 0.2728505
-8    LAYING Subject-08    time BodyAccel mean    X 0.2635592
-9    LAYING Subject-09    time BodyAccel mean    X 0.2591955
-10   LAYING Subject-10    time BodyAccel mean    X 0.2215982
-..      ...        ...     ...       ...  ...  ...       ...
+   activity subject measure    metric func axis     value
+1    LAYING      10    time BodyAccel mean    X 0.2802306
+2    LAYING      12    time BodyAccel mean    X 0.2601134
+3    LAYING      13    time BodyAccel mean    X 0.2767164
+4    LAYING      18    time BodyAccel mean    X 0.2746916
+5    LAYING       2    time BodyAccel mean    X 0.2813734
+6    LAYING      20    time BodyAccel mean    X 0.2395079
+7    LAYING      24    time BodyAccel mean    X 0.2728505
+8    LAYING       4    time BodyAccel mean    X 0.2635592
+9    LAYING       9    time BodyAccel mean    X 0.2591955
+10   LAYING       1    time BodyAccel mean    X 0.2215982
+..      ...     ...     ...       ...  ...  ...       ...
 ```
 `str(tidy_result)`
 ```
 Classes ‘tbl_df’, ‘tbl’ and 'data.frame':	11880 obs. of  7 variables:
  $ activity: Factor w/ 6 levels "LAYING","SITTING",..: 1 1 1 1 1 1 1 1 1 1 ...
- $ subject : Factor w/ 30 levels "Subject-01","Subject-02",..: 1 2 3 4 5 6 7 8 9 10 ...
+ $ subject : Factor w/ 30 levels "10","12","13",..: 1 2 3 4 5 6 7 8 9 10 ...
  $ measure : Factor w/ 2 levels "freq","time": 2 2 2 2 2 2 2 2 2 2 ...
  $ metric  : Factor w/ 10 levels "BodyAccel","BodyAccelJerk",..: 1 1 1 1 1 1 1 1 1 1 ...
  $ func    : Factor w/ 2 levels "mean","sd": 1 1 1 1 1 1 1 1 1 1 ...
