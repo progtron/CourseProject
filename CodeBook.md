@@ -15,7 +15,7 @@ Factor with the 6 levels from `UCI HAR Dataset/activity_labels.txt`. These repre
 6. WALKING_UPSTAIRS
 
 #### subject
-Factor with labels for the 30 subjects from whom data was gathered. For readability, these have been named `Subject-01` through `Subject-30`.
+Factor with labels for the 30 subjects from whom data was gathered, numbered 1-30.
 
 #### measure
 Factor with 2 levels, derived from the prefixes of the variable names listed in `features.txt`.
