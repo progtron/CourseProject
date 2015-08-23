@@ -31,14 +31,26 @@ The 561 variables are described in `features.txt`.
 
 My approach is described below. I will complete all steps but not necessarily in the order specified. In `run_analysis.R` I have included `print` statements to inform about progress while it runs.
 
+### Assumptions about data location
+1. Data fetched & unzipped
+2. UCI HAR Dataset folder in working directory of this script
+
+The proper location of the data files is essential to the success of this script. Check that the `UCI HAR Dataset` folder is present where expected; if not, issue an error message.  
+```
+if (!dir.exists("UCI HAR Dataset")) {
+  print("***ERROR:")
+  print("UCI HAR Dataset not in working directory!")
+  print("As noted in project instructions, please ensure that UCI HAR Dataset is")
+  print("fetched, unzipped, and located in the working directory - thanks!")
+  print("***")
+  flush.console()
+}
+```
+
 Begin by installing needed packages, in case they are not present.  
 `packages_used <- c("dplyr", "tidyr")`  
 `packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]`  
 `if(length(packages_to_install)) install.packages(packages_to_install)`
-
-### Assumptions about data location:
-1. Data fetched & unzipped
-2. UCI HAR Dataset folder in working directory of this script
 
 Read the data sets. The files have no header and use whitespace separators (1 or 2, depending on whether the next reading is negative or not).  
 `test <- read.csv("./UCI HAR Dataset/test/X_test.txt", header = FALSE, sep = "")`  
