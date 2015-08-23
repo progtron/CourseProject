@@ -1,18 +1,29 @@
 # See https://github.com/progtron/CourseProject/blob/master/README.md for a detailed description
 # of how this script works.
 
-# Install needed packages, in case they are not present
-packages_used <- c("dplyr", "tidyr")
-packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]
-if(length(packages_to_install)) install.packages(packages_to_install)
-
-# To observe progress, updates & info are printed to the console
 print("===")
 print("Assumptions:")
 print("1.. Data fetched & unzipped");
 print("2.. UCI HAR Dataset folder in working directory of this script")
 print("---")
 flush.console()
+
+# Check that the 'UCI HAR Dataset' folder is present; if not, exit with an error message
+if (!dir.exists("UCI HAR Dataset")) {
+  print("***ERROR:")
+  print("UCI HAR Dataset not in working directory!")
+  print("As noted in project instructions, please ensure that UCI HAR Dataset is")
+  print("fetched, unzipped, and located in the working directory - thanks!")
+  print("***")
+  flush.console()
+}
+
+# To observe progress, updates & info are printed to the console
+
+# Install needed packages, in case they are not present
+packages_used <- c("dplyr", "tidyr")
+packages_to_install <- packages_used[!(packages_used %in% installed.packages()[,"Package"])]
+if(length(packages_to_install)) { install.packages(packages_to_install) }
 
 # Read the data sets. The files have no header and use whitespace separators (1 or 2,
 # depending on whether the next reading is negative or not).
