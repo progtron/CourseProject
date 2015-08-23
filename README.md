@@ -210,7 +210,7 @@ Print the summary of this table.
 #### Final tidy table: `tidy_result`
 ### This completes STEP 5 of the assignment, the final step.
 
-Here's what `tidy_result` looks like:
+Here's what `tidy_result` looks like. If you're using **RStudio** use `View(tidy_result)` to inspect the result.
 ```
 Source: local data frame [11,880 x 7]
 
