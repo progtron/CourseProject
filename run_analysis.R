@@ -236,6 +236,7 @@ str(tidy_result)
 
 print("===")
 print("Final tidy table: tidy_result")
+print("If you're using RStudio, run 'View(tidy_result)' to inspect the result")
 print("ASSIGNMENT STEP 5 Completed")
 print("---")
 flush.console()
