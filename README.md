@@ -194,11 +194,11 @@ tidy_result <-
 ```
 
 Final clean-up. Except for the mean values, change column types to factor.  
-`tidy_result$subject = as.factor(tidy_result$subject)`
-`tidy_result$measure = as.factor(tidy_result$measure)`
-`tidy_result$metric = as.factor(tidy_result$metric)`
-`tidy_result$func = as.factor(tidy_result$func)`
-`tidy_result$axis = as.factor(tidy_result$axis)`
+`tidy_result$subject = as.factor(tidy_result$subject)`  
+`tidy_result$measure = as.factor(tidy_result$measure)`  
+`tidy_result$metric = as.factor(tidy_result$metric)`  
+`tidy_result$func = as.factor(tidy_result$func)`  
+`tidy_result$axis = as.factor(tidy_result$axis)`  
 
 We've tidied the result by decomposing variable names into multiple columns in the table `tidy_result`.
 
